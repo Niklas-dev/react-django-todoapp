@@ -4,11 +4,24 @@ import IconButton from "./components/IconButton";
 
 const Header = () => {
   const createTodo = () => {
+    console.log("test");
     const requestOptions = {
-      header: { "": "" },
+      headers: {
+        "Content-Type": "application/json",
+      },
       method: "POST",
-      body: JSON.stringify({}),
+
+      body: JSON.stringify({
+        title: "Todo #2",
+        content: "Content",
+      }),
     };
+    fetch(
+      `http://${process.env.BACKEND}:${process.env.PORT}/todos/create-todo`,
+      requestOptions
+    )
+      .then((response) => response.json())
+      .then((data) => console.log(data));
   };
   return (
     <div className="fixed w-full h-fit">
@@ -34,7 +47,10 @@ const Header = () => {
             </svg>
           </IconButton>
           <div className="h-11 w-72 bg-gradient-to-b from-[#29138a]  pt-1    to-[#7729b6] rounded-b-xl flex justify-center gap-4">
-            <HeaderActionButton text="Create Todo" action={() => {}} />
+            <HeaderActionButton
+              text="Create Todo"
+              action={() => createTodo()}
+            />
             <HeaderActionButton text="Select Todo`s" action={() => {}} />
           </div>
           <IconButton action={() => {}}>
