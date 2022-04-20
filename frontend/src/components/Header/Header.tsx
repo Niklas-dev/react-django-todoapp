@@ -1,8 +1,10 @@
 import React from "react";
 import HeaderActionButton from "./components/HeaderActionButton";
 import IconButton from "./components/IconButton";
-
-const Header = () => {
+type headerProps = {
+  showModalCallback: () => void;
+};
+const Header = ({ showModalCallback }: headerProps) => {
   const createTodo = () => {
     console.log("test");
     const requestOptions = {
@@ -24,7 +26,7 @@ const Header = () => {
       .then((data) => console.log(data));
   };
   return (
-    <div className="fixed w-full h-fit">
+    <div className="fixed w-full h-fit ">
       <div className=" h-12 bg-[#29138a] rounded-b-xl flex items-center px-2 text-2xl font-bold text-white">
         TodoApp
       </div>
@@ -49,7 +51,7 @@ const Header = () => {
           <div className="h-11 w-72 bg-gradient-to-b from-[#29138a]  pt-1    to-[#7729b6] rounded-b-xl flex justify-center gap-4">
             <HeaderActionButton
               text="Create Todo"
-              action={() => createTodo()}
+              action={() => showModalCallback()}
             />
             <HeaderActionButton text="Select Todo`s" action={() => {}} />
           </div>

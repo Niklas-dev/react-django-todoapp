@@ -1,11 +1,11 @@
 import React from "react";
 
-type props = {
+type iconButtonProps = {
   action: () => void;
   children: JSX.Element;
 };
 
-const IconButton = ({ action, children }: props) => {
+const IconButton = ({ action, children }: iconButtonProps) => {
   return (
     <button
       onClick={() => action()}
