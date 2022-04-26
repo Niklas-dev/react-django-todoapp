@@ -27,7 +27,7 @@ const Header = ({ showModalCallback }: headerProps) => {
   };
   return (
     <div className="fixed w-full h-fit ">
-      <div className=" h-12 bg-[#29138a] rounded-b-xl flex items-center px-2 text-2xl font-bold text-white">
+      <div className=" h-12 bg-gray-800 rounded-b-xl flex items-center px-2 text-2xl font-bold text-white">
         TodoApp
       </div>
       <div className=" w-full flex justify-center">
@@ -48,7 +48,7 @@ const Header = ({ showModalCallback }: headerProps) => {
               />
             </svg>
           </IconButton>
-          <div className="h-11 w-72 bg-gradient-to-b from-[#29138a]  pt-1    to-[#7729b6] rounded-b-xl flex justify-center gap-4">
+          <div className="h-11 w-72 bg-gradient-to-b from-gray-800  pt-1    to-gray-900 rounded-b-xl flex justify-center gap-4">
             <HeaderActionButton
               text="Create Todo"
               action={() => showModalCallback()}

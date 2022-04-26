@@ -1,28 +1,26 @@
-import React from "react";
+import React, { useContext } from "react";
+import TodoContext from "../../shared/providers/TodosProvider";
+import { todo } from "../App";
+import TodoItem from "./components/TodoItem";
 
-const Body = () => {
+type bodyProps = {
+  updateTodosCallback: () => void;
+};
+
+const Body = ({ updateTodosCallback }: bodyProps) => {
+  const todosContext: Array<todo> = useContext(TodoContext);
+
   return (
     <div className=" text-black mt-32 h-full w-full">
       <div className="">
         <h1 className="pl-4 text-2xl font-medium">Todos</h1>
         <div className="flex items-center gap-4 pt-4 pl-4 pr-4 overflow-x-scroll pb-2">
-          <div className="w-80 shrink-0 h-96 bg-gray-300 rounded-lg"></div>
-          <div className="w-80 shrink-0 h-96 bg-gray-300 rounded-lg"></div>
-          <div className="w-80 shrink-0 h-96 bg-gray-300 rounded-lg"></div>
-          <div className="w-80 shrink-0 h-96 bg-gray-300 rounded-lg"></div>
-          <div className="w-80 shrink-0 h-96 bg-gray-300 rounded-lg"></div>
-          <div className="w-80 shrink-0 h-96 bg-gray-300 rounded-lg"></div>
-          <div className="w-80 shrink-0 h-96 bg-gray-300 rounded-lg"></div>
-          <div className="w-80 shrink-0 h-96 bg-gray-300 rounded-lg"></div>
-          <div className="w-80 shrink-0 h-96 bg-gray-300 rounded-lg"></div>
-          <div className="w-80 shrink-0 h-96 bg-gray-300 rounded-lg"></div>
-          <div className="w-80 shrink-0 h-96 bg-gray-300 rounded-lg"></div>
-          <div className="w-80 shrink-0 h-96 bg-gray-300 rounded-lg"></div>
-          <div className="w-80 shrink-0 h-96 bg-gray-300 rounded-lg"></div>
-          <div className="w-80 shrink-0 h-96 bg-gray-300 rounded-lg"></div>
-          <div className="w-80 shrink-0 h-96 bg-gray-300 rounded-lg"></div>
-          <div className="w-80 shrink-0 h-96 bg-gray-300 rounded-lg"></div>
-          <div className="w-80 shrink-0 h-96 bg-gray-300 rounded-lg"></div>
+          {todosContext.map((todo) => (
+            <TodoItem
+              updateTodosCallback={() => updateTodosCallback()}
+              todo={todo}
+            />
+          ))}
         </div>
       </div>
       <div className="">
