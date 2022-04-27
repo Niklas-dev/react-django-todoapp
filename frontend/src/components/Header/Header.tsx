@@ -59,7 +59,7 @@ const Header = ({
               action={() => showModalCallback()}
             />
             <HeaderActionButton
-              text={selectMode ? "X" : "Select Todo`s"}
+              text={selectMode ? "Cancel Select" : "Select Todos"}
               action={() => {
                 setSelectedModeCallback(!selectMode);
                 setSelectMode(!selectMode);

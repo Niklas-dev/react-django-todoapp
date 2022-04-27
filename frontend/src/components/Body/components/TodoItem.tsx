@@ -6,6 +6,7 @@ import autosize from "autosize";
 type todoItemProps = {
   todo: todo;
   updateTodosCallback: () => void;
+  markTodoCallback: (index: number) => void;
   index: number;
 };
 type todoInput = {
@@ -13,7 +14,12 @@ type todoInput = {
   content: string;
 };
 
-const TodoItem = ({ todo, updateTodosCallback, index }: todoItemProps) => {
+const TodoItem = ({
+  todo,
+  updateTodosCallback,
+  index,
+  markTodoCallback,
+}: todoItemProps) => {
   const [done, setDone] = useState(todo.done);
   const [marked, setMarked] = useState(false);
   const [input, setInput] = useState<todoInput>({
@@ -70,7 +76,12 @@ const TodoItem = ({ todo, updateTodosCallback, index }: todoItemProps) => {
   });
 
   return (
-    <div className="flex ring-[#e81c4e]  ring-4 flex-col justify-between w-80 shrink-0 h-96 py-4 px-4 bg-gray-800 rounded-lg hover:-translate-y-2 transition-all duration-200">
+    <div
+      onClick={() => markTodoCallback(index)}
+      className={`flex  flex-col justify-between w-80 shrink-0 h-96 py-4 px-4 bg-gray-800 rounded-lg hover:-translate-y-2 transition-all duration-200 ${
+        todo.marked && "ring-purple-600 ring-4"
+      }`}
+    >
       <div>
         <div className="flex flex-row justify-between ">
           {true ? (
@@ -139,7 +150,7 @@ const TodoItem = ({ todo, updateTodosCallback, index }: todoItemProps) => {
           )}
         </div>
       </div>
-      <p className="text-white">{index}</p>
+
       <div>
         {todo.done && <TimeAtDisplay text="Done At:" time={todo.done_at} />}
         <TimeAtDisplay text="Created At:" time={todo.created_at} />

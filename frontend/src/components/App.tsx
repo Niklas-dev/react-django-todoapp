@@ -11,6 +11,7 @@ export type todo = {
   done: boolean;
   created_at: string;
   done_at: string;
+  marked?: boolean;
 };
 export default function App(): JSX.Element {
   const [showModal, setShowModal] = useState(false);
@@ -43,10 +44,33 @@ export default function App(): JSX.Element {
     console.log("getting data");
   };
 
+  const markTodo = (index: number) => {
+    if (selectedMode) {
+      let todosCopy: Array<todo> = todos;
+      console.log(todosCopy, todosCopy[index].marked);
+      todosCopy[index].marked =
+        todosCopy[index].marked === undefined ? true : !todosCopy[index].marked;
+      console.log(todosCopy, todosCopy[index].marked);
+
+      setTodos([...todosCopy]);
+    }
+  };
+
   useEffect(() => {
     getTodos();
     return () => {};
   }, []);
+
+  useEffect(() => {
+    if (!selectedMode) {
+      let todosCopy = todos;
+      for (let todo in todosCopy) {
+        todosCopy[todo].marked = false;
+      }
+      setTodos([...todosCopy]);
+    }
+    return () => {};
+  }, [selectedMode]);
 
   return (
     <div className="flex flex-col w-full h-full">
@@ -56,7 +80,10 @@ export default function App(): JSX.Element {
       />
 
       <TodoProvider value={todos}>
-        <Body updateTodosCallback={() => getTodos()} />
+        <Body
+          markTodoCallback={(index: number) => markTodo(index)}
+          updateTodosCallback={() => getTodos()}
+        />
       </TodoProvider>
 
       {showModal && (
