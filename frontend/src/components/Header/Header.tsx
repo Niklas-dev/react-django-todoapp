@@ -1,10 +1,15 @@
-import React from "react";
+import React, { useState } from "react";
 import HeaderActionButton from "./components/HeaderActionButton";
 import IconButton from "./components/IconButton";
 type headerProps = {
   showModalCallback: () => void;
+  setSelectedModeCallback: (value: boolean) => void;
 };
-const Header = ({ showModalCallback }: headerProps) => {
+const Header = ({
+  showModalCallback,
+  setSelectedModeCallback,
+}: headerProps) => {
+  const [selectMode, setSelectMode] = useState(false);
   const createTodo = () => {
     console.log("test");
     const requestOptions = {
@@ -27,7 +32,7 @@ const Header = ({ showModalCallback }: headerProps) => {
   };
   return (
     <div className="fixed w-full h-fit ">
-      <div className=" h-12 bg-gray-800 rounded-b-xl flex items-center px-2 text-2xl font-bold text-white">
+      <div className=" h-12 text-[#e81c4e]  bg-gray-800 rounded-b-xl flex items-center px-2 text-2xl font-bold ">
         TodoApp
       </div>
       <div className=" w-full flex justify-center">
@@ -48,12 +53,18 @@ const Header = ({ showModalCallback }: headerProps) => {
               />
             </svg>
           </IconButton>
-          <div className="h-11 w-72 bg-gradient-to-b from-gray-800  pt-1    to-gray-900 rounded-b-xl flex justify-center gap-4">
+          <div className="h-11 px-2 w-72 bg-gradient-to-b from-gray-800  pt-1    to-gray-900 rounded-b-xl flex justify-center gap-4">
             <HeaderActionButton
               text="Create Todo"
               action={() => showModalCallback()}
             />
-            <HeaderActionButton text="Select Todo`s" action={() => {}} />
+            <HeaderActionButton
+              text={selectMode ? "X" : "Select Todo`s"}
+              action={() => {
+                setSelectedModeCallback(!selectMode);
+                setSelectMode(!selectMode);
+              }}
+            />
           </div>
           <IconButton action={() => {}}>
             <svg

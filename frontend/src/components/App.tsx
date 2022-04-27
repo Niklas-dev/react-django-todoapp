@@ -15,6 +15,7 @@ export type todo = {
 export default function App(): JSX.Element {
   const [showModal, setShowModal] = useState(false);
   const [todos, setTodos] = useState<Array<todo>>([]);
+  const [selectedMode, setSelectedMode] = useState(false);
 
   const getTodos = () => {
     const requestOptions = {
@@ -49,13 +50,19 @@ export default function App(): JSX.Element {
 
   return (
     <div className="flex flex-col w-full h-full">
-      <Header showModalCallback={() => setShowModal(true)} />
+      <Header
+        setSelectedModeCallback={(value: boolean) => setSelectedMode(value)}
+        showModalCallback={() => setShowModal(true)}
+      />
+
       <TodoProvider value={todos}>
         <Body updateTodosCallback={() => getTodos()} />
       </TodoProvider>
+
       {showModal && (
         <CreateModal hideModalCallback={() => setShowModal(false)} />
       )}
+      {selectedMode.toString()}
     </div>
   );
 }
