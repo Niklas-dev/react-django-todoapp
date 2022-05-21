@@ -5,6 +5,7 @@ import TitleInput from "./components/TitleInput";
 import DescriptionInput from "./components/DescriptionInput";
 type createModelProps = {
   hideModalCallback: () => void;
+  getTodos: () => {};
 };
 
 type inputType = {
@@ -19,7 +20,7 @@ export type imperativeHandleDescription = {
   checkInput: () => void;
 };
 
-const CreateModal = ({ hideModalCallback }: createModelProps) => {
+const CreateModal = ({ hideModalCallback, getTodos }: createModelProps) => {
   const modalRef = useRef<HTMLDivElement>(null);
 
   const titleInputRef = useRef<imperativeHandleTitle>();
@@ -38,7 +39,7 @@ const CreateModal = ({ hideModalCallback }: createModelProps) => {
     };
   }, []);
 
-  const createTodo = () => {
+  const createTodo = async () => {
     if (input.description === "" || input.title === "") {
       titleInputRef.current?.checkInput();
       descriptionInputRef.current?.checkInput();
@@ -54,12 +55,14 @@ const CreateModal = ({ hideModalCallback }: createModelProps) => {
           content: input.description,
         }),
       };
-      fetch(
+      await fetch(
         `http://${process.env.BACKEND}:${process.env.PORT}/todos/create-todo`,
         requestOptions
       )
         .then((response) => response.json())
         .then((data) => console.log(data));
+      getTodos();
+
       hideModalCallback();
     }
   };

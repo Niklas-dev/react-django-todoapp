@@ -7,11 +7,12 @@ from datetime import datetime
 from django.utils import timezone
 
 import todos.models
-from .models import Todo
+from .models import Todo, ArchivedTodo
 from .serializers import *
 
 
 # Create your views here.
+
 
 
 class CreateTodoView(APIView):
@@ -55,11 +56,21 @@ class UpdateTodoView(APIView):
 
         serializers = UpdateTodoSerializer(data=json.loads(request.body))
         if serializers.is_valid(raise_exception=True):
+            todos_with_title = Todo.objects.filter(title=serializers.data['title'])
+            print(todos_with_title.count())
+            title_in_use = todos_with_title.count() >= 1
+            is_title_update = serializers.data['title_update']
+
+            if title_in_use and is_title_update:
+                return Response({"Bad Request": "Title already exists"}, status=status.HTTP_400_BAD_REQUEST)
             todo = Todo.objects.get(title=serializers.data['old_title'])
             todo.title = serializers.data['title']
             todo.content = serializers.data['content']
             todo.done = serializers.data['done']
-            if serializers.data['done']:
+
+            allow_done_at_change = serializers.data['done'] and serializers.data['old_title'] == serializers.data['title'] and serializers.data['old_content'] == serializers.data['content']
+
+            if allow_done_at_change:
 
                 todo.done_at = timezone.now()
 
@@ -70,9 +81,21 @@ class UpdateTodoView(APIView):
 
 class DeleteTodoView(APIView):
     def delete(self, request):
-        serializer = DeleteTodoSerializer(data=json.loads(request.data))
+        serializer = DeleteTodoSerializer(data=json.loads(request.body))
         if serializer.is_valid(raise_exception=True):
             todo = Todo.objects.get(title=serializer.data['title'])
             todo.delete()
             return Response({"Success": "Deleted"}, status=status.HTTP_200_OK)
         return Response({"Bad Request": "You need to provide a key"}, status=status.HTTP_400_BAD_REQUEST)
+
+class ArchiveTodoView(APIView):
+    def patch(self, request):
+        serializer = ArchiveTodoSerializer(data=json.loads(request.body))
+        if serializer.is_valid(raise_exception=True):
+            todo = Todo.objects.get(title=serializer.data['title'])
+            archived_todo = ArchivedTodo.objects.create(title=todo.title, content=todo.content, done=todo.done, created_at=todo.created_at, done_at=todo.done_at)
+
+
+            todo.delete()
+            return Response({"Success": "Archived  and removed from Todo Table"}, status=status.HTTP_200_OK)
+        return Response({"Bad Request": "You need to provide a title"}, status=status.HTTP_400_BAD_REQUEST)

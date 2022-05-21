@@ -10,3 +10,8 @@ class Todo(models.Model):
     done = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     done_at = models.DateTimeField(null=True)
+
+
+class ArchivedTodo(Todo):
+
+    archived_at = models.DateTimeField(auto_now_add=True)

@@ -13,19 +13,21 @@ export type todo = {
   done_at: string;
   marked?: boolean;
 };
+
 export default function App(): JSX.Element {
   const [showModal, setShowModal] = useState(false);
   const [todos, setTodos] = useState<Array<todo>>([]);
   const [selectedMode, setSelectedMode] = useState(false);
 
-  const getTodos = () => {
+  const getTodos = async () => {
+    setTodos([]);
     const requestOptions = {
       headers: {
         "Content-Type": "application/json",
       },
       method: "GET",
     };
-    fetch(
+    await fetch(
       `http://${process.env.BACKEND}:${process.env.PORT}/todos/get-todos`,
       requestOptions
     )
@@ -41,19 +43,99 @@ export default function App(): JSX.Element {
           setTodos(data["Todos"]);
         }
       });
-    console.log("getting data");
   };
 
   const markTodo = (index: number) => {
     if (selectedMode) {
       let todosCopy: Array<todo> = todos;
-      console.log(todosCopy, todosCopy[index].marked);
+
       todosCopy[index].marked =
         todosCopy[index].marked === undefined ? true : !todosCopy[index].marked;
-      console.log(todosCopy, todosCopy[index].marked);
 
       setTodos([...todosCopy]);
     }
+  };
+
+  const archiveMarkedTodos = async () => {
+    let todosCopy = todos;
+    let archiveToTodos: Array<todo> = [];
+
+    for (let todo in todosCopy) {
+      if (todosCopy[todo].marked === true) {
+        archiveToTodos.push(todosCopy[todo]);
+      }
+    }
+
+    for (let dTodo in archiveToTodos) {
+      await archiveTodo(archiveToTodos[dTodo].title);
+    }
+
+    await getTodos();
+  };
+
+  const deleteMarkedTodos = async () => {
+    let todosCopy = todos;
+    let deleteToTodos: Array<todo> = [];
+
+    for (let todo in todosCopy) {
+      if (todosCopy[todo].marked === true) {
+        deleteToTodos.push(todosCopy[todo]);
+      }
+    }
+
+    for (let dTodo in deleteToTodos) {
+      await deleteTodo(deleteToTodos[dTodo].title);
+    }
+
+    await getTodos();
+  };
+
+  const archiveTodo = async (title: string) => {
+    const requestOptions = {
+      headers: {
+        "Content-Type": "application/json",
+      },
+      method: "PATCH",
+      body: JSON.stringify({
+        title,
+      }),
+    };
+    await fetch(
+      `http://${process.env.BACKEND}:${process.env.PORT}/todos/archive-todo`,
+      requestOptions
+    )
+      .then((response) => {
+        if (response.status === 200) {
+          return response.json();
+        } else {
+          return null;
+        }
+      })
+      .then((data) => console.log(data));
+  };
+
+  const deleteTodo = async (title: string) => {
+    const requestOptions = {
+      headers: {
+        "Content-Type": "application/json",
+      },
+      method: "DELETE",
+      body: JSON.stringify({
+        title,
+      }),
+    };
+    await fetch(
+      `http://${process.env.BACKEND}:${process.env.PORT}/todos/delete-todo`,
+      requestOptions
+    )
+      .then((response) => {
+        if (response.status === 200) {
+          return response.json();
+        } else {
+          return null;
+        }
+      })
+      .then((data) => console.log(data));
   };
 
   useEffect(() => {
@@ -75,6 +157,8 @@ export default function App(): JSX.Element {
   return (
     <div className="flex flex-col w-full h-full">
       <Header
+        archiveMarkedTodos={() => archiveMarkedTodos()}
+        deleteMarkedTodos={() => deleteMarkedTodos()}
         setSelectedModeCallback={(value: boolean) => setSelectedMode(value)}
         showModalCallback={() => setShowModal(true)}
       />
@@ -82,12 +166,17 @@ export default function App(): JSX.Element {
       <TodoProvider value={todos}>
         <Body
           markTodoCallback={(index: number) => markTodo(index)}
-          updateTodosCallback={() => getTodos()}
+          updateTodosCallback={() => {
+            getTodos();
+          }}
         />
       </TodoProvider>
 
       {showModal && (
-        <CreateModal hideModalCallback={() => setShowModal(false)} />
+        <CreateModal
+          getTodos={() => getTodos()}
+          hideModalCallback={() => setShowModal(false)}
+        />
       )}
       {selectedMode.toString()}
     </div>

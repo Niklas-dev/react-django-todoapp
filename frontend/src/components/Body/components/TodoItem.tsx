@@ -22,11 +22,12 @@ const TodoItem = ({
 }: todoItemProps) => {
   const [done, setDone] = useState(todo.done);
   const [marked, setMarked] = useState(false);
+  const [titleExistsError, setTitleExistsError] = useState(false);
   const [input, setInput] = useState<todoInput>({
     title: todo.title,
     content: todo.content,
   });
-  const updateTodo = (onlyDone: boolean) => {
+  const updateTodo = (onlyDone: boolean, titleUpdate: boolean) => {
     const requestOptions = {
       headers: {
         "Content-Type": "application/json",
@@ -36,38 +37,52 @@ const TodoItem = ({
         ? JSON.stringify({
             old_title: todo.title,
             title: input.title,
+            old_content: todo.content,
             content: input.content,
+            title_update: titleUpdate,
             done: !done,
           })
         : JSON.stringify({
             old_title: todo.title,
             title: input.title,
+            old_content: todo.content,
             content: input.content,
+            title_update: titleUpdate,
             done: todo.done,
           }),
     };
-    fetch(
-      `http://${process.env.BACKEND}:${process.env.PORT}/todos/update-todo`,
-      requestOptions
-    )
-      .then((response) => {
-        if (response.status === 200) {
-          return response.json();
-        } else {
-          return null;
-        }
-      })
-      .then((data) => {
-        console.log("test");
-        if ("Success" in data) {
-          setInput({
-            title: input.title,
-            content: input.content,
-          });
 
-          updateTodosCallback();
-        }
-      });
+    console.log("HERE");
+    //todo.title !== input.title || todo.done === done
+    if (true) {
+      fetch(
+        `http://${process.env.BACKEND}:${process.env.PORT}/todos/update-todo`,
+        requestOptions
+      )
+        .then((response) => response.json())
+        .then((data) => {
+          console.log(data);
+          if ("Success" in data) {
+            setInput({
+              title: input.title,
+              content: input.content,
+            });
+
+            !onlyDone && updateTodosCallback();
+          } else if ("Bad Request" in data) {
+            if (
+              data["Bad Request"] === "Title already exists" &&
+              todo.title !== input.title
+            ) {
+              setTitleExistsError(true);
+
+              console.log("Title Error");
+            }
+          } else {
+            console.log("Unexpected Error");
+          }
+        });
+    }
   };
 
   useEffect(() => {
@@ -78,7 +93,7 @@ const TodoItem = ({
   return (
     <div
       onClick={() => markTodoCallback(index)}
-      className={`flex  flex-col justify-between w-80 shrink-0 h-96 py-4 px-4 bg-gray-800 rounded-lg hover:-translate-y-2 transition-all duration-200 ${
+      className={`flex  flex-col justify-between w-80 shrink-0 h-96 py-4 px-4 bg-gray-800  rounded-lg hover:-translate-y-2 transition-all duration-200 ${
         todo.marked && "ring-purple-600 ring-4"
       }`}
     >
@@ -86,21 +101,32 @@ const TodoItem = ({
         <div className="flex flex-row justify-between ">
           {true ? (
             <textarea
-              onBlur={() => updateTodo(false)}
-              onChange={(e) =>
+              onBlur={() => {
+                updateTodo(false, true);
+              }}
+              spellCheck={false}
+              onChange={(e) => {
+                setTitleExistsError(false);
                 setInput({
                   title: e.target.value,
                   content: input.content,
-                })
-              }
-              onKeyPress={(e) => {
-                if (e.key === "Enter") e.preventDefault();
+                });
               }}
-              defaultValue={input.title}
+              onKeyPress={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                }
+              }}
+              value={titleExistsError ? "" : input.title}
               maxLength={50}
               rows={4}
               style={{ resize: "none" }}
-              className="textarea outline-none w-5/6 bg-gray-800 text-xl text-gray-200 font-semibold h-8 pb-1"
+              placeholder={
+                titleExistsError ? "This title already exists. *" : ""
+              }
+              className={`textarea outline-none w-5/6 bg-gray-800 text-xl font-semibold text-gray-200  h-8 pb-1 ${
+                titleExistsError ? "placeholder:text-[#e81c4e]" : ""
+              }`}
             />
           ) : (
             <h1
@@ -114,17 +140,19 @@ const TodoItem = ({
             style={{ accentColor: "#e81c4e" }}
             checked={done}
             onChange={() => {
-              updateTodo(true);
+              updateTodo(true, false);
               setDone(!done);
             }}
             className="h-5 w-5"
             type="checkbox"
           />
         </div>
+
         <div className="pt-1">
           {true ? (
             <textarea
-              onBlur={() => updateTodo(false)}
+              onBlur={() => updateTodo(false, false)}
+              spellCheck={false}
               onChange={(e) =>
                 setInput({
                   title: input.title,
@@ -152,7 +180,7 @@ const TodoItem = ({
       </div>
 
       <div>
-        {todo.done && <TimeAtDisplay text="Done At:" time={todo.done_at} />}
+        {done && <TimeAtDisplay text="Done At:" time={todo.done_at} />}
         <TimeAtDisplay text="Created At:" time={todo.created_at} />
       </div>
     </div>

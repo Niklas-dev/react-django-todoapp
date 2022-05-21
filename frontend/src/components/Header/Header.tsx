@@ -2,42 +2,33 @@ import React, { useState } from "react";
 import HeaderActionButton from "./components/HeaderActionButton";
 import IconButton from "./components/IconButton";
 type headerProps = {
+  archiveMarkedTodos: () => void;
+  deleteMarkedTodos: () => void;
   showModalCallback: () => void;
   setSelectedModeCallback: (value: boolean) => void;
 };
 const Header = ({
   showModalCallback,
   setSelectedModeCallback,
+  archiveMarkedTodos,
+  deleteMarkedTodos,
 }: headerProps) => {
   const [selectMode, setSelectMode] = useState(false);
-  const createTodo = () => {
-    console.log("test");
-    const requestOptions = {
-      headers: {
-        "Content-Type": "application/json",
-      },
-      method: "POST",
 
-      body: JSON.stringify({
-        title: "Todo #2",
-        content: "Content",
-      }),
-    };
-    fetch(
-      `http://${process.env.BACKEND}:${process.env.PORT}/todos/create-todo`,
-      requestOptions
-    )
-      .then((response) => response.json())
-      .then((data) => console.log(data));
-  };
   return (
-    <div className="fixed w-full h-fit ">
-      <div className=" h-12 text-[#e81c4e]  bg-gray-800 rounded-b-xl flex items-center px-2 text-2xl font-bold ">
-        TodoApp
+    <div className="fixed w-full h-fit z-20 border-white">
+      <div className=" h-12  flex flex-row justify-between text-[#e81c4e] border-b-2  bg-gray-800 rounded-b-xl items-center px-4 text-2xl font-bold ">
+        <h1>TodoApp</h1>
+        <button
+          onClick={() => window.location.reload()}
+          className=" font-medium text-lg hover:text-white transition duration-300"
+        >
+          Refresh
+        </button>
       </div>
       <div className=" w-full flex justify-center">
-        <div className=" h-10 w-full rounded-t-3xl px-4 flex justify-center items-center gap-5">
-          <IconButton action={() => {}}>
+        <div className=" h-10 w-full  rounded-t-3xl px-4 flex justify-center items-center gap-5">
+          <IconButton action={() => archiveMarkedTodos()}>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               className="h-6 w-6"
@@ -53,20 +44,27 @@ const Header = ({
               />
             </svg>
           </IconButton>
-          <div className="h-11 px-2 w-72 bg-gradient-to-b from-gray-800  pt-1    to-gray-900 rounded-b-xl flex justify-center gap-4">
+          <div className="h-11 border-b-2 border-r-2 border-l-2 px-2 w-72 bg-gradient-to-b from-gray-800  pt-1    to-gray-900 rounded-b-xl flex justify-center gap-4">
             <HeaderActionButton
               text="Create Todo"
               action={() => showModalCallback()}
             />
             <HeaderActionButton
-              text={selectMode ? "Cancel Select" : "Select Todos"}
+              text={selectMode ? "Cancel" : "Select Todos"}
               action={() => {
                 setSelectedModeCallback(!selectMode);
                 setSelectMode(!selectMode);
               }}
             />
           </div>
-          <IconButton action={() => {}}>
+          <IconButton
+            action={() => {
+              deleteMarkedTodos();
+
+              setSelectedModeCallback(false);
+              setSelectMode(false);
+            }}
+          >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               className="h-6 w-6"

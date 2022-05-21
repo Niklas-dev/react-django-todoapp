@@ -19,11 +19,16 @@ class GetTodoSerializer(Serializer):
 class UpdateTodoSerializer(Serializer):
     old_title = serializers.CharField(max_length=150, allow_null=True)
     title = serializers.CharField(max_length=150, allow_null=True)
+    old_content = serializers.CharField(max_length=255, allow_null=True)
     content = serializers.CharField(max_length=255, allow_null=True)
+    title_update = serializers.BooleanField(allow_null=False)
 
     done = serializers.BooleanField(allow_null=True)
 
 class DeleteTodoSerializer(Serializer):
+    title = serializers.CharField()
+
+class ArchiveTodoSerializer(Serializer):
     title = serializers.CharField()
 
 
