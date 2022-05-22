@@ -31,5 +31,13 @@ class DeleteTodoSerializer(Serializer):
 class ArchiveTodoSerializer(Serializer):
     title = serializers.CharField()
 
+class GetArchivedTodoSerializer(Serializer):
+    title = serializers.CharField(max_length=150)
+    content = serializers.CharField(max_length=255)
+
+    done = serializers.BooleanField()
+    created_at = serializers.DateTimeField()
+    done_at = serializers.DateTimeField(allow_null=True)
+    archived_at = serializers.DateTimeField()
 
 

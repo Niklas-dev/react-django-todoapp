@@ -4,6 +4,7 @@ import Body from "./Body/Body";
 import CreateModal from "./CreateModal/CreateModal";
 import Header from "./Header/Header";
 import { TodoProvider } from "../shared/providers/TodosProvider";
+import { ArchivedTodoProvider } from "../shared/providers/ArchivedTodosProvider";
 
 export type todo = {
   title: string;
@@ -12,11 +13,13 @@ export type todo = {
   created_at: string;
   done_at: string;
   marked?: boolean;
+  archived_at?: string;
 };
 
 export default function App(): JSX.Element {
   const [showModal, setShowModal] = useState(false);
   const [todos, setTodos] = useState<Array<todo>>([]);
+  const [archivedTodos, setArchivedTodos] = useState<Array<todo>>([]);
   const [selectedMode, setSelectedMode] = useState(false);
 
   const getTodos = async () => {
@@ -41,6 +44,32 @@ export default function App(): JSX.Element {
       .then((data) => {
         if (data !== null) {
           setTodos(data["Todos"]);
+        }
+      });
+  };
+
+  const getArchivedTodos = async () => {
+    setArchivedTodos([]);
+    const requestOptions = {
+      headers: {
+        "Content-Type": "application/json",
+      },
+      method: "GET",
+    };
+    await fetch(
+      `http://${process.env.BACKEND}:${process.env.PORT}/todos/get-archived-todos`,
+      requestOptions
+    )
+      .then((response) => {
+        if (response.status === 200) {
+          return response.json();
+        } else {
+          return null;
+        }
+      })
+      .then((data) => {
+        if (data !== null) {
+          setArchivedTodos(data["Todos"]);
         }
       });
   };
@@ -112,6 +141,8 @@ export default function App(): JSX.Element {
         }
       })
       .then((data) => console.log(data));
+
+    await getArchivedTodos();
   };
 
   const deleteTodo = async (title: string) => {
@@ -138,8 +169,32 @@ export default function App(): JSX.Element {
       .then((data) => console.log(data));
   };
 
+  const deleteArchivedTodos = async () => {
+    const requestOptions = {
+      headers: {
+        "Content-Type": "application/json",
+      },
+      method: "DELETE",
+    };
+    await fetch(
+      `http://${process.env.BACKEND}:${process.env.PORT}/todos/delete-archived-todos`,
+      requestOptions
+    )
+      .then((response) => {
+        if (response.status === 200) {
+          return response.json();
+        } else {
+          return null;
+        }
+      })
+      .then((data) => console.log(data));
+
+    await getArchivedTodos();
+  };
+
   useEffect(() => {
     getTodos();
+    getArchivedTodos();
     return () => {};
   }, []);
 
@@ -164,12 +219,15 @@ export default function App(): JSX.Element {
       />
 
       <TodoProvider value={todos}>
-        <Body
-          markTodoCallback={(index: number) => markTodo(index)}
-          updateTodosCallback={() => {
-            getTodos();
-          }}
-        />
+        <ArchivedTodoProvider value={archivedTodos}>
+          <Body
+            markTodoCallback={(index: number) => markTodo(index)}
+            deleteArchivedTodosCallback={() => deleteArchivedTodos()}
+            updateTodosCallback={() => {
+              getTodos();
+            }}
+          />
+        </ArchivedTodoProvider>
       </TodoProvider>
 
       {showModal && (
@@ -178,7 +236,6 @@ export default function App(): JSX.Element {
           hideModalCallback={() => setShowModal(false)}
         />
       )}
-      {selectedMode.toString()}
     </div>
   );
 }
